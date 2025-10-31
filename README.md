@@ -1,6 +1,4 @@
-# ZLO_TOOL
-
-## 🧰 ANDROID_TOOL_LINUX
+# 🧰 ANDROID_TOOL_LINUX
 
 一个基于 Shell 的 **Android 镜像分解与打包工具**，支持多种镜像格式与文件系统类型。  
 适合 ROM 定制、镜像分析、文件系统研究、自动化构建等场景。

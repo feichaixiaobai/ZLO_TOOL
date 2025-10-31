@@ -1,0 +1,33 @@
+# ============================================================
+# ZLO Image Tool System Requirements
+# ============================================================
+# 用于 Android 镜像分解/打包的系统级依赖。
+# 你可以使用 apt/dnf/pacman 安装这些包。
+#
+# Debian / Ubuntu:
+#     grep -v '^#' requirements.txt | grep -v '^$' | xargs sudo apt-get install -y
+#
+# Fedora:
+#     grep -v '^#' requirements.txt | grep -v '^$' | xargs sudo dnf install -y
+#
+# Arch Linux:
+#     grep -v '^#' requirements.txt | grep -v '^$' | xargs sudo pacman -S --noconfirm
+# ============================================================
+
+# Android 工具
+android-sdk-libsparse-utils    # simg2img, 稀疏镜像转换
+android-sdk-lp-tools           # lpunpack/lpmake, super.img 分解与打包
+
+# 文件系统支持
+e2fsprogs                      # debugfs, ext4 提取
+erofs-utils                    # erofsfuse/erofs-unpack, EROFS 提取
+squashfs-tools                 # unsquashfs, SquashFS 解包
+p7zip-full                     # 7z, 通用解包支持
+
+# 基础命令
+brotli                         # .br 压缩/解压
+rsync                          # 文件同步复制
+tar                            # 打包/解包命令
+coreutils                      # 提供 realpath, mktemp 等命令
+file                           # 文件类型检测
+util-linux                     # 提供 mount, umount, fusermount 等命令
