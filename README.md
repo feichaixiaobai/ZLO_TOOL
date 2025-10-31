@@ -39,7 +39,7 @@ grep -v '^#' requirements.txt | grep -v '^$' | xargs sudo apt-get install -y
 
 ```bash
 grep -v '^#' requirements.txt | grep -v '^$' | xargs sudo dnf install -y
-```sss
+```
 
 在 **Arch Linux** 系统中执行：
 
