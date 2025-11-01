@@ -36,6 +36,40 @@ is_project_dir() {
     return 0
 }
 
+
+# ============ 终端页工具 ============
+supports_alt_screen() {
+  [ -t 1 ] || return 1         
+  [ -n "${TERM:-}" ] || return 1
+  command -v tput >/dev/null 2>&1 || return 1
+  tput smcup >/dev/null 2>&1 && tput rmcup >/dev/null 2>&1
+}
+
+enter_alt_screen() {
+  if supports_alt_screen; then
+    tput smcup 2>/dev/null || printf '\033[?1049h'
+    tput clear 2>/dev/null  || printf '\033[2J\033[H'
+  else
+    printf '\033[2J\033[H'
+  fi
+}
+
+leave_alt_screen() {
+  if supports_alt_screen; then
+    tput rmcup 2>/dev/null || printf '\033[?1049l'
+  fi
+}
+
+# 包装器：始终保证离开备用屏
+with_alt_screen() {
+  enter_alt_screen
+  "$@"
+  rc=$?
+  leave_alt_screen
+  return $rc
+}
+
+
 ###############################################################################
 # 欢迎页
 ###############################################################################
@@ -212,7 +246,8 @@ show_home_menu(){
 ###############################################################################
 # 项目子菜单（分解/打包）
 ###############################################################################
-demofun(){
+project_menu_core(){
+   
     dir=$(pwd)
 
     echo "==============================="
@@ -221,11 +256,11 @@ demofun(){
     echo
     echo "33.分解super       44.打包super"
     echo
-    echo "55.分解bat         66.打包bat"
+    echo "55.分解dat         66.打包dat"
     echo
     echo "77.分解br          88.打包br"
     echo
-    echo "99.分解bin         1010.打包bin"
+    echo "99.分解bin         1010.打包bin(正在开发)"
     echo
     echo "00.返回上级菜单"
     echo "==============================="
@@ -373,19 +408,19 @@ demofun(){
                 fi
                 ;;
             55)
-                echo "正在分解 bat..."
-                if [ -x "$TOOL_DIR/unpack_bat.sh" ]; then
-                    sh "$TOOL_DIR/unpack_bat.sh"
+                echo "正在分解 dat..."
+                if [ -x "$TOOL_DIR/unpack_dat.sh" ]; then
+                    sh "$TOOL_DIR/unpack_dat.sh"
                 else
-                    echo "请放入 $TOOL_DIR/unpack_bat.sh"
+                    echo "请放入 $TOOL_DIR/unpack_dat.sh"
                 fi
                 ;;
             66)
-                echo "正在打包 bat..."
-                if [ -x "$TOOL_DIR/pack_bat.sh" ]; then
-                    sh "$TOOL_DIR/pack_bat.sh"
+                echo "正在打包 dat..."
+                if [ -x "$TOOL_DIR/pack_dat.sh" ]; then
+                    sh "$TOOL_DIR/pack_dat.sh"
                 else
-                    echo "请放入 $TOOL_DIR/pack_bat.sh"
+                    echo "请放入 $TOOL_DIR/pack_dat.sh"
                 fi
                 ;;
             77)
@@ -432,14 +467,16 @@ demofun(){
                 ;;
             00)
                 echo "返回上级菜单"
-                cd .. || exit 1
-                break
+                return
                 ;;
             *)
                 echo "无效的选项，请重新输入。"
                 ;;
         esac
     done
+}
+project_menu() {
+  with_alt_screen project_menu_core
 }
 
 ###############################################################################
@@ -489,7 +526,7 @@ while :; do
                     y|Y)
                         cd "$project_name" || exit 1
                         echo "已进入项目 $project_name"
-                        demofun
+                        project_menu
                         ;;
                     *)
                         echo "已返回首页"
@@ -543,7 +580,7 @@ done
 if [ -n "$sel_project_name" ] && is_project_dir "$sel_project_name"; then
     cd "$sel_project_name" || exit 1
     echo "已进入项目 $sel_project_name"
-    demofun
+    project_menu
 else
     echo "项目 $sel_input 不存在或不是有效项目（bin/tool 不显示且不可选择）"
 fi
