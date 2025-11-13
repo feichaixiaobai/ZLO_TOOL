@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🧰 ANDROID_TOOL_LINUX
 
 一个基于 Shell 的 **Android 镜像分解与打包工具**，支持多种镜像格式与文件系统类型。  
@@ -41,7 +41,7 @@ ZLO Tool 是一个功能强大的跨平台 Android 镜像处理工具，专为 R
 
 ## 🚀 功能特性
 
-<<<<<<< HEAD
+
 ✅ 分解与打包以下镜像类型：
 - `img` / `super.img`
 - `br` / `bat` / `bin`
@@ -694,14 +694,6 @@ SOFTWARE.
 
 ---
 
-## 📮 联系方式
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/zlo_tool/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/zlo_tool/discussions)
-- **Email**: your.email@example.com
-
----
-
 ## 📊 项目统计
 
 - **代码行数**: ~3000+ 行
@@ -745,4 +737,4 @@ Made with ❤️ by ZLO Tool Team
 [⬆ 回到顶部](#-zlo-android-镜像工具)
 
 </div>
->>>>>>> 199941f (fix bug)
+
