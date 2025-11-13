@@ -9,6 +9,10 @@
 from __future__ import print_function
 import sys, os, errno
 
+# 设置环境变量，确保使用UTF-8编码
+if sys.platform == 'win32':
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 def main(TRANSFER_LIST_FILE, NEW_DATA_FILE, OUTPUT_IMAGE_FILE):
     __version__ = '1.2'
 
@@ -32,7 +36,7 @@ def main(TRANSFER_LIST_FILE, NEW_DATA_FILE, OUTPUT_IMAGE_FILE):
         return tuple ([ (num_set[i], num_set[i+1]) for i in range(1, len(num_set), 2) ])
 
     def parse_transfer_list_file(path):
-        trans_list = open(TRANSFER_LIST_FILE, 'r')
+        trans_list = open(TRANSFER_LIST_FILE, 'r', encoding='utf-8')
 
         # First line in transfer list is the version number
         version = int(trans_list.readline())

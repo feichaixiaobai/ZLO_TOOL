@@ -9,7 +9,24 @@
 from __future__ import print_function
 
 import sys, os, errno, tempfile
-import common, blockimgdiff, sparse_img
+
+# 设置环境变量，确保使用UTF-8编码
+if sys.platform == 'win32':
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+
+# 尝试导入依赖模块
+try:
+    import common, blockimgdiff, sparse_img
+except ImportError as e:
+    print("错误: 缺少必要的依赖模块")
+    print("img2sdat.py 需要以下模块: common, blockimgdiff, sparse_img")
+    print("这些模块通常来自 Android sdat2img 工具集")
+    print("请确保这些模块在 Python 路径中，或使用完整的 sdat2img 工具集")
+    if sys.version_info >= (3, 0):
+        print("详细错误: {}".format(e))
+    else:
+        print("详细错误: %s" % str(e))
+    sys.exit(1)
 
 def main(INPUT_IMAGE, OUTDIR='.', VERSION=None, PREFIX='system'):
     global input
