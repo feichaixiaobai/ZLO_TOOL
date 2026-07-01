@@ -95,11 +95,12 @@ fi
 # ---------- 后端能力探测（实际试跑） ----------
 HAS_MKFS_D=0
 if need_cmd mkfs.ext4; then
-  T="$(mktemp -u)"; mkdir -p "$T.d" && : > "$T.d/ok"
-  if mkfs.ext4 -q -L test -d "$T.d" "$T.img" 16M >/dev/null 2>&1; then
+  PROBE_DIR="$(mktemp -d)"
+  mkdir -p "$PROBE_DIR/src" && : > "$PROBE_DIR/src/ok"
+  if mkfs.ext4 -q -L test -d "$PROBE_DIR/src" "$PROBE_DIR/probe.img" 16M >/dev/null 2>&1; then
     HAS_MKFS_D=1
   fi
-  rm -rf "$T.d" "$T.img" 2>/dev/null || true
+  rm -rf "$PROBE_DIR" 2>/dev/null || true
 fi
 HAS_MAKE_EXT4FS=0; need_cmd make_ext4fs && HAS_MAKE_EXT4FS=1
 HAS_E2FSDROID=0; need_cmd e2fsdroid && need_cmd mke2fs && HAS_E2FSDROID=1
@@ -126,7 +127,12 @@ pack_one_partition() {
   OUT_SPARSE="$OUT_DIR/$PART.sparse.img"
 
   # 计算大小：目录体积 +30%，最小 256MB，16MB 对齐
-  sz_mb="$(du -sm --apparent-size "$SRC" | awk '{print $1}')"
+  # 优先使用 --apparent-size（GNU），退回到普通 du 以兼容 BusyBox/BSD
+  if du -sm --apparent-size "$SRC" >/dev/null 2>&1; then
+    sz_mb="$(du -sm --apparent-size "$SRC" | awk '{print $1}')"
+  else
+    sz_mb="$(du -sm "$SRC" | awk '{print $1}')"
+  fi
   [ -n "$sz_mb" ] || die "无法获取目录体积：$SRC"
   extra=$(( (sz_mb * 30 + 99) / 100 ))
   prealloc=$(( sz_mb + extra ))

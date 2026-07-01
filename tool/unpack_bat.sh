@@ -44,7 +44,7 @@ LISTS="$(find_lists)"
 # ---------- 把列表做成“索引:分区名:绝对路径”的清单 ----------
 PARTS=""
 i=0
-echo "$LISTS" | while IFS= read -r rel; do
+while IFS= read -r rel; do
   [ -n "$rel" ] || continue
   base="$(basename "$rel")"
   part="${base%.transfer.list}"
@@ -53,7 +53,9 @@ echo "$LISTS" | while IFS= read -r rel; do
   i=$((i+1))
   PARTS="${PARTS}
 $i:$part:$PROJECT_ROOT/$rel"
-done
+done <<UNPACK_DAT_LISTS_EOF
+$LISTS
+UNPACK_DAT_LISTS_EOF
 [ "$i" -gt 0 ] || die "未提取到分区列表"
 count="$i"
 

@@ -22,11 +22,24 @@ class ToolEnvironment:
     - 在执行外部命令时，可通过 ``prepare_subprocess_env`` 注入 PATH。
     """
 
-    def __init__(self, root_path: Optional[Path] = None) -> None:
+    def __init__(
+        self,
+        root_path: Optional[Path] = None,
+        projects_root: Optional[Path] = None,
+    ) -> None:
         self.root: Path = Path(root_path or Path(__file__).resolve().parents[1])
         self.system: str = platform.system()
         self.bin_root: Path = self.root / "bin"
         self.tool_dir: Path = self.root / "tool"
+
+        env_projects = os.environ.get("ZLO_PROJECTS_DIR")
+        if projects_root is not None:
+            resolved_projects = Path(projects_root)
+        elif env_projects:
+            resolved_projects = Path(env_projects)
+        else:
+            resolved_projects = Path.home() / ".zlo_tool" / "projects"
+        self.projects_root: Path = resolved_projects.expanduser()
 
         self._bin_dir: Optional[Path] = None
         self._cache: Dict[str, Optional[Path]] = {}

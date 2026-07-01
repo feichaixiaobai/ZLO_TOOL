@@ -89,8 +89,12 @@ if [ -z "$FILES" ]; then
       for tok in $(echo "$idxs" | tr ',' ' '); do
         case "$tok" in
           *-*) a=$(echo "$tok"|cut -d- -f1); b=$(echo "$tok"|cut -d- -f2)
-               seq "$a" "$b" | while read -r n; do FILES="${FILES}
-$(printf "%s\n" "$LIST" | sed -n "${n}p")"; done;;
+               n="$a"
+               while [ "$n" -le "$b" ]; do
+                 FILES="${FILES}
+$(printf "%s\n" "$LIST" | sed -n "${n}p")"
+                 n=$((n+1))
+               done;;
           *) FILES="${FILES}
 $(printf "%s\n" "$LIST" | sed -n "${tok}p")";;
         esac

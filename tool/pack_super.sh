@@ -138,7 +138,8 @@ RAW_LIST_PATHS=""
 TOTAL_BYTES=0
 
 need_sparse2raw=0
-echo "$SELECTED_INDEXES" | awk -F, '{for(i=1;i<=NF;i++) print $i}' | while read idx; do
+_SELECTED_LINES="$(echo "$SELECTED_INDEXES" | awk -F, '{for(i=1;i<=NF;i++) print $i}')"
+while IFS= read -r idx; do
   [ -n "$idx" ] || continue
   tup="$(idx_to_tuple "$idx")" || exit 1
   name="$(echo "$tup" | awk -F: '{print $1}')"
@@ -166,7 +167,9 @@ echo "$SELECTED_INDEXES" | awk -F, '{for(i=1;i<=NF;i++) print $i}' | while read 
 
   RAW_LIST_NAMES="${RAW_LIST_NAMES}${RAW_LIST_NAMES:+ }$name"
   RAW_LIST_PATHS="${RAW_LIST_PATHS}${RAW_LIST_PATHS:+ }$path"
-done
+done <<PACK_SUPER_INDEXES_EOF
+$_SELECTED_LINES
+PACK_SUPER_INDEXES_EOF
 
 # ---------- 交互 2：确认输出路径（可直接回车使用默认） ----------
 if [ -t 0 ] && [ -t 1 ]; then

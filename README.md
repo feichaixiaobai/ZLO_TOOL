@@ -17,7 +17,7 @@
 
 支持 IMG / SUPER / DAT / BR / BIN 等多种格式 | 现代化图形界面 | 命令行工具 | 自动化脚本
 
-[功能特性](#-功能特性) • [安装](#-安装) • [使用指南](#-使用指南) • [常见问题](#-常见问题) • [贡献](#-贡献)
+[功能特性](#-功能特性) • [安装](#-安装) • [使用指南](#-使用指南) • [常见问题](#-常见问题) • [更新日志](#-更新日志) • [贡献](#-贡献)
 
 </div>
 
@@ -35,7 +35,7 @@ ZLO Tool 是一个功能强大的跨平台 Android 镜像处理工具，专为 R
 - 📦 **项目管理**：独立工作空间，支持多项目并行处理
 - ⚡ **批量操作**：可选择全部或部分镜像进行操作
 - 🔧 **扩展机制**：支持自定义 Python/Shell 脚本
->>>>>>> 199941f (fix bug)
+
 
 ---
 
@@ -703,30 +703,35 @@ SOFTWARE.
 
 ---
 
-## 🗺️ 路线图
+## 📝 更新日志
 
-### v1.1.0（计划中）
+### 2026-07-01
 
-- [ ] 支持打包 payload.bin
-- [ ] 增加镜像对比功能
-- [ ] 添加签名验证
-- [ ] 支持增量 OTA 生成
+#### 🐛 Bug 修复（Python）
+- 修复 `env.root_dir` 属性不存在导致所有 CLI 子命令 `AttributeError` 无法运行（`main.py`、`zlo_tool/ops.py`）
+- 修复 `list` 子命令对 `str` 调用 `.name` 属性引发 `AttributeError`（`main.py`）
+- 修复 `pack_dat` 默认扫描 `rglob("*.img")` 时误抓 `zlo_pack/` / `zlo_out/` / `zlo_super/` 目录产物、sparse 与 super 镜像（`zlo_tool/ops.py`）
+- 修复 `ProjectManager.delete_project` 目标不存在时不抛异常，导致 CLI/GUI 的 `FileNotFoundError` 捕获分支永远不生效（`zlo_tool/projects.py`）
 
-### v1.2.0（计划中）
+#### 🐛 Bug 修复（Shell 脚本）
+- `pack_super.sh`：主累加循环 `RAW_LIST_NAMES` / `RAW_LIST_PATHS` / `TOTAL_BYTES` 在管道子 shell 中丢失，导致 `lpmake` 参数为空，改用 here-doc 输入
+- `unpack_bat.sh`：`PARTS` 收集循环同样处于管道子 shell，永远撞 "未提取到分区列表" 直接退出，改用 here-doc
+- `pack_br.sh`：`COUNT` 恒为 0 导致范围选择全部越界；`packed` / `skipped` / `removed` 统计永远为 0；`seq | while` 范围累加失效，全部改用 here-doc + 纯 `while` 循环
+- `unpack_br.sh`：同类 `count` / `ok` / `skip` / `rmcount` 子 shell 泄露，统一改用 here-doc
+- `pack_dat.sh`：交互式范围选择 `seq | while` 丢失文件，改用纯 `while [ n -le b ]`
+- `unpack_bin.sh`：POSIX `echo "\n..."` 不解析转义字符，改用 `printf '\n...\n'`
+- `pack_img.sh`：`du -sm --apparent-size` 是 GNU 特有，加 feature-detect + `du -sm` 兜底，兼容 BusyBox/BSD
+- `pack_img.sh`：`mkfs.ext4 -d` 能力探测使用 `mktemp -u` 生成不存在路径存在并发/权限风险，改用 `mktemp -d`
+- `unpack_super.sh`：稀疏镜像 magic 匹配从 `*ed26ff3a` 收紧为精确 `ed26ff3a`（`tr -d` 已清除空白）
 
-- [ ] Web 界面支持
-- [ ] 插件系统
-- [ ] 云端备份集成
-- [ ] 自动化测试框架
+#### 🏗️ 架构调整
+- **项目工作区从仓库根迁出**：`ToolEnvironment` 新增 `projects_root` 属性，默认为 `~/.zlo_tool/projects`，可通过环境变量 `ZLO_PROJECTS_DIR` 覆盖
+- `ProjectManager` 改用 `env.projects_root` 并在构造时自动创建；删除 `RESERVED_NAMES` 及其分支（专用目录后不再需要过滤仓库子目录）
+- `main.py list` 命令输出中新增一行显示项目根目录路径
 
-### 长期计划
+> ⚠️ **不兼容变更**：之前放在仓库根目录下的项目不再被识别。请手动 `mv` 到新目录，或临时设 `ZLO_PROJECTS_DIR=<仓库路径>` 保持旧行为。
 
-- [ ] 支持更多文件系统（XFS, Btrfs）
-- [ ] AI 辅助分析
-- [ ] 多语言界面
-- [ ] Docker 容器化
 
----
 
 <div align="center">
 

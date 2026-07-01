@@ -84,12 +84,13 @@ def main() -> int:
         # 项目管理
         if args.command == "list":
             projects = project_manager.list_projects()
+            print(f"项目根目录：{env.projects_root}")
             if not projects:
                 print("暂无项目")
             else:
                 print(f"共有 {len(projects)} 个项目：")
                 for proj in projects:
-                    print(f"  - {proj.name}")
+                    print(f"  - {proj}")
             return 0
 
         elif args.command == "create":
@@ -103,7 +104,7 @@ def main() -> int:
             return 0
 
         # 操作类命令
-        project_dir = env.root_dir / args.project
+        project_dir = env.projects_root / args.project
         if not project_dir.exists():
             print(f"❌ 项目不存在：{args.project}", file=sys.stderr)
             return 1

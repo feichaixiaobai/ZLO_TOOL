@@ -86,10 +86,12 @@ if [ -t 0 ] && [ -t 1 ] && [ "$MODE" != "files" ] && [ "$MODE" != "all" ]; then
   # 列出可选项
   echo "可解压的 .br 文件："
   i=0
-  echo "$LIST" | while IFS= read -r rel; do
+  while IFS= read -r rel; do
     [ -n "$rel" ] || continue
     i=$((i+1)); printf "  %d) %s\n" "$i" "$rel"
-  done
+  done <<UNPACK_BR_LIST_EOF
+$LIST
+UNPACK_BR_LIST_EOF
   count="$i"
 
   echo
@@ -155,7 +157,8 @@ fi
 
 # -------- 执行解压 --------
 total=0; ok=0; skip=0; rmcount=0
-echo "$SELECTED" | sed '/^[[:space:]]*$/d' | while IFS= read -r rel; do
+_SELECTED_CLEAN="$(echo "$SELECTED" | sed '/^[[:space:]]*$/d')"
+while IFS= read -r rel; do
   [ -n "$rel" ] || continue
   total=$((total+1))
   in="$PROJECT_ROOT/$rel"
@@ -181,7 +184,9 @@ echo "$SELECTED" | sed '/^[[:space:]]*$/d' | while IFS= read -r rel; do
   else
     echo "❌ 失败：$rel" >&2
   fi
-done
+done <<UNPACK_BR_TARGETS_EOF
+$_SELECTED_CLEAN
+UNPACK_BR_TARGETS_EOF
 
 echo "—— 统计 ——"
-echo "总计：$(echo "$SELECTED" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')  成功：$ok  跳过：$skip  删除源：$rmcount"
+echo "总计：$total  成功：$ok  跳过：$skip  删除源：$rmcount"

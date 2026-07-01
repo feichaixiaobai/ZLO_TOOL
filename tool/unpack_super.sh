@@ -32,8 +32,8 @@ is_sparse_img() {
   fi
 
   case "$magic" in
-    *ed26ff3a) return 0 ;;  # 稀疏
-    *)         return 1 ;;
+    ed26ff3a) return 0 ;;  # 稀疏
+    *)        return 1 ;;
   esac
 }
 

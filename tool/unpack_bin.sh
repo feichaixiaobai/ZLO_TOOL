@@ -137,7 +137,7 @@ if [ "$MODE" = "all" ]; then
   printf "%s\n" "$PARTS" | while read -r part; do
     idx=$((idx+1))
     show_progress "$idx" "$count"
-    "$PDG" -p "$part" "$PAYLOAD_IN" >/dev/null 2>&1 || echo "\n⚠️ $part 解包失败"
+    "$PDG" -p "$part" "$PAYLOAD_IN" >/dev/null 2>&1 || printf '\n⚠️ %s 解包失败\n' "$part"
   done
 else
   chosen=$(echo "$PARTS_CSV" | tr ',' '\n')
@@ -147,7 +147,7 @@ else
   echo "$chosen" | while read -r part; do
     idx=$((idx+1))
     show_progress "$idx" "$total"
-    "$PDG" -p "$part" "$PAYLOAD_IN" >/dev/null 2>&1 || echo "\n⚠️ $part 解包失败"
+    "$PDG" -p "$part" "$PAYLOAD_IN" >/dev/null 2>&1 || printf '\n⚠️ %s 解包失败\n' "$part"
   done
 fi
 printf "\n✅ 完成！输出目录: %s\n" "$OUT_DIR"

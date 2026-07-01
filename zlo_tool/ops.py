@@ -398,7 +398,25 @@ class OperationRunner:
         if img_files:
             targets = img_files
         else:
-            targets = list(project_dir.rglob("*.img"))
+            excluded_roots = {
+                project_dir / "zlo_pack",
+                project_dir / "zlo_out",
+                project_dir / "zlo_super",
+            }
+
+            def _in_excluded(path: Path) -> bool:
+                for root in excluded_roots:
+                    try:
+                        path.relative_to(root)
+                        return True
+                    except ValueError:
+                        continue
+                return False
+
+            targets = [
+                p for p in project_dir.rglob("*.img")
+                if not _in_excluded(p) and ".sparse" not in p.stem and not self._is_super_image(p.name)
+            ]
 
         if not targets:
             raise OperationError("未找到 .img 文件")
@@ -816,7 +834,7 @@ class OperationRunner:
         candidates = [
             self.env.bin_dir / "sdat2img.py",
             self.env.tool_dir / "sdat2img.py",
-            self.env.root_dir / "bin" / "Linux" / "sdat2img.py",
+            self.env.root / "bin" / "Linux" / "sdat2img.py",
         ]
         for path in candidates:
             if path.exists():
@@ -828,7 +846,7 @@ class OperationRunner:
         candidates = [
             self.env.bin_dir / "img2sdat.py",
             self.env.tool_dir / "img2sdat.py",
-            self.env.root_dir / "bin" / "Linux" / "img2sdat.py",
+            self.env.root / "bin" / "Linux" / "img2sdat.py",
         ]
         for path in candidates:
             if path.exists():

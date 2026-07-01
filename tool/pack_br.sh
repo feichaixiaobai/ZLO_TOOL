@@ -104,9 +104,12 @@ else
   if [ -t 0 ] && [ -t 1 ]; then
     echo "检测到以下 .dat 文件："
     i=0
-    printf "%s\n" "$LIST" | while IFS= read -r rel; do
+    while IFS= read -r rel; do
+      [ -n "$rel" ] || continue
       i=$((i+1)); printf "  %d) %s\n" "$i" "$rel"
-    done
+    done <<PACK_BR_LIST_EOF
+$LIST
+PACK_BR_LIST_EOF
     COUNT="$i"
     echo
     echo "1) 全部打包"
@@ -121,8 +124,12 @@ else
         case "$tok" in
           *-*) a=$(echo "$tok"|cut -d- -f1); b=$(echo "$tok"|cut -d- -f2)
                [ "$a" -ge 1 ] && [ "$b" -le "$COUNT" ] || die "范围越界: $tok"
-               seq "$a" "$b" | while read -r n; do SEL="${SEL}
-$(printf "%s\n" "$LIST" | sed -n "${n}p")"; done;;
+               n="$a"
+               while [ "$n" -le "$b" ]; do
+                 SEL="${SEL}
+$(printf "%s\n" "$LIST" | sed -n "${n}p")"
+                 n=$((n+1))
+               done;;
           *) SEL="${SEL}
 $(printf "%s\n" "$LIST" | sed -n "${tok}p")";;
         esac
@@ -152,7 +159,8 @@ total=$(printf "%s\n" "$SEL" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')
 
 packed=0; skipped=0; removed=0
 
-echo "$SEL" | sed '/^[[:space:]]*$/d' | while IFS= read -r rel; do
+_SEL_CLEAN="$(echo "$SEL" | sed '/^[[:space:]]*$/d')"
+while IFS= read -r rel; do
   [ -n "$rel" ] || continue
   in="$PROJECT_ROOT/$rel"
 
@@ -180,7 +188,9 @@ echo "$SEL" | sed '/^[[:space:]]*$/d' | while IFS= read -r rel; do
   else
     echo "❌ 失败：$rel" >&2
   fi
-done
+done <<PACK_BR_TARGETS_EOF
+$_SEL_CLEAN
+PACK_BR_TARGETS_EOF
 
 echo "—— 统计 ——"
 echo "总计：$total  成功：$packed  跳过：$skipped  删除源：$removed"
